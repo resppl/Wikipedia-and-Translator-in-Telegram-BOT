@@ -1,12 +1,17 @@
 # Wikipedia and Translator in Telegram BOT
 
 In order for the script to work, download the libraries to your computer by running the following commands on the command line:
+#
 pip install pyTelegramBotApi
+#
 pip install requests
+#
 pip install wikipedia-api
+#
 pip install beautifulsoup4
+#
 pip install googletrans==3.1.0a0
-
+#
 THIS BOT IS DESIGNED TO QUICKLY FIND A TERM ON WIKIPEDIA, AS WELL AS QUICKLY TRANSLATE IT.
 
 ATTENTION!!!
