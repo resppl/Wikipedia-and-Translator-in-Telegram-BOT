@@ -4,22 +4,49 @@
 import telebot
 import requests
 import wikipedia
+from telebot import types
 from bs4 import BeautifulSoup
 import re
 from googletrans import Translator
 
-TOKEN = 'YOUR_API_KEY_TELEGRAM_BOT' # НАПИШИТЕ ЗДЕСЬ СВОЮ КЛЮЧ ОТ TELEGRAM-БОТА
+TOKEN = '6762231009:AAG-1SxzRqJ9J-zqNT2uoJzQINBH5EKjv14' # НАПИШИТЕ ЗДЕСЬ СВОЮ КЛЮЧ ОТ TELEGRAM-БОТА
 bot = telebot.TeleBot(TOKEN)
 
-name_project = "WikiRespBot" # НАПИШИТЕ ЗДЕСЬ ИМЯ СВОЕГО БОТА
-telegram_project_reviews = "t.me/wikirespbotreviews" # ОСТАВЬТЕ ССЫЛКУ, ГДЕ НАХОДЯТСЯ ОТЗЫВЫ
-telegram_project_feedback = "t.me/resppl" # ОСТАВЬТЕ ССЫЛКУ, ГДЕ МОЖНО ОСТАВИТЬ ОБРАТНУЮ СВЯЗЬ
+selected_action = ""
+
+## ОСНОВНЫЕ НАСТРОЙКИ 
+name_project = "WikiRespBot" # ИМЯ БОТА
+welcome_project = f"Привет! Я {name_project} - ваш надежный помощник в поиске информации из Википедии и переводе текста! Если вы хотите перевести текст или найти определение слова, просто нажмите на кнопку внизу" # ПРИВЕТСТВИЕ БОТА
+error_message = "Извините, я не понял вашего сообщения. Возможно, вы забыли выбрать действие, чтобы выбрать действие, нажмите на /help." # ЕСЛИ КОМАНДА НЕ НАЙДЕНА, ТО БОТ ВЫВОДИТ СЛЕДУЮЩЕЕ.
+help_message = "Ваш текущий выбор был сброшен автоматически, если он был сделан. Чтобы снова выбрать действие, нажмите на кнопку внизу." # ЕСЛИ ЧЕЛОВЕК ВВОДИТ КОМАНДУ /HELP, ТО БОТ СБРАСЫВАЕТ ТЕКУЩИЙ ВЫБОР
+reset_button_message = "Сбросить выбор" # СБРАСЫВАЕТ ВЫБОР, ЕСЛИ ЧЕЛОВЕК НАЖАЛ ОДНО ДЕЙСТВИЕ, А ПОТОМ ДРУГОЕ.
+choice_made = "Вы уже выбрали действие. Если вы решили выбрать другое действие, пожалуйста, сбросьте данный выбор, воспользовавшись командой - /help) и сделайте выбор снова." # ЕСЛИ ЧЕЛОВЕК ВЫБРАЛ ДВА ВЫБОРА, ТО ПОЛЬЗОВАТЕЛЯ ОПОВЕЩАЕТ.
+reset_notification = "Выбор сброшен, выберите новое действие." # ЕСЛИ ЧЕЛОВЕК СБРОСИЛ ВЫБОР, ТО ОТОБРАЖАЕТСЯ СЛЕДУЮЩИЙ ТЕКСТ
+## ПЕРЕВОДЧИК
+translate_button_message = "Перевести текст" # КНОПКА
+enter_text_translate = "Введите текст для перевода:" # ТЕКСТ
+error_wiki_message = "К сожалению, найти информацию по этому термину не удалось. Попробуйте ввести другой термин." # ОШИБКА, ЕСЛИ ТЕРМИН НЕ НАЙДЕН
+repeat_enter_text_translate = "Введите следующий текст для перевода (язык, на который вы хотите перевести остается тот же, если вы хотите поменять введите /help):" # Продолжение, если же пользователь решил выбрать новое действие, то пишет /help
+select_the_translation_language = "Выберите язык перевода:" # ТЕКСТ НА КОТОРЫЙ ПОЛЬЗОВАТЕЛЬ ХОЧЕТ ПЕРЕВЕСТИ
+
+## ВИКИПЕДИЯ
+api_wikipedia_rus = "https://ru.wikipedia.org/w/api.php" # API Википедии
+searchwiki_button_message = "Поиск в Википедии" # КНОПКА
+enter_request_wiki = "Введите поисковый запрос в Википедии:" # ТЕКСТ
+repeating_enter_request_wiki = "Введите следующий поисковый запрос в Википедии (если вы хотите поменять выбор введите /help):" # Продолжение, если же пользователь решил выбрать новое действие, то пишет /help
+reminder_message = "Мы очень рады, что вы нашли необходимую информацию! Мы заметили, что вы часто пользуетесь нашим ботом, и нам это очень приятно. Если вам не сложно, пожалуйста, оставьте свой отзыв о нашем боте. Мы будем благодарны за любой отзыв, который вы сможете предоставить. С вашей помощью мы сможем улучшить нашего бота и сделать его еще более полезным для вас и других пользователей. Спасибо!" # ОПОВЕЩЕНИЕ ОЦЕНИТЬ БОТА, ПОСЛЕ НЕСКОЛЬКИХ ПОИСКОВ ТЕРМИНОВ
+## ОТЗЫВЫ
+telegram_project_reviews = "t.me/wikirespbotreviews" # ССЫЛКА НА ОТЗЫВЫ
+reviews_button_message = "Отзывы" # КНОПКА
+## ОБРАТНАЯ СВЯЗЬ
+telegram_project_feedback = "t.me/resppl" # ССЫЛКА НА ОБРАТНУЮ СВЯЗЬ
+feedback_button_message = "Обратная связь" # КНОПКА
 
 searches_count = {}
 poll_shown = set()
 
 def get_wikipedia_summary(term):
-    url = "https://ru.wikipedia.org/w/api.php"
+    url = api_wikipedia_rus
     params = {
         "action": "query",
         "format": "json",
@@ -47,9 +74,25 @@ def get_wikipedia_summary(term):
     else:
         return None, None
     
+@bot.callback_query_handler(func=lambda call: call.data in ['translate', 'searchwiki'])
+def handle_action_button(call):
+    global selected_action
+
+    if selected_action and call.data != "reset":
+        bot.send_message(call.message.chat.id, choice_made)
+    else:
+        if call.data == "reset":
+            selected_action = ""
+            return
+        selected_action = call.data
+        if selected_action == "translate":
+            handle_translate_button(call)
+        elif selected_action == "searchwiki":
+            handle_searchwiki_button(call)
+
 @bot.callback_query_handler(func=lambda call: call.data == 'translate')
 def handle_translate_button(call):
-    bot.send_message(call.message.chat.id, "Выберите язык перевода:", reply_markup=generate_translate_markup())
+    bot.send_message(call.message.chat.id, select_the_translation_language, reply_markup=generate_translate_markup())
 
 def generate_translate_markup():
     markup = telebot.types.InlineKeyboardMarkup()
@@ -79,37 +122,62 @@ def generate_translate_markup():
 
 
 @bot.callback_query_handler(func=lambda call: call.data in ['ru', 'en', 'de', 'fr', 'es', 'ja', 'zh', 'ko', 'ar', 'it', 'pt', 'tr', 'pl', 'sv', 'el', 'cs', 'hu', 'fi', 'az', 'uz', 'kk', 'be'])
-def handle_language_button(call):
-    bot.send_message(call.message.chat.id, "Введите текст для перевода:")
-    bot.register_next_step_handler(call.message, translate_text, call.data)
+def handle_target_language(call):
+    target_lang = call.data
+    bot.send_message(call.message.chat.id, enter_text_translate)
+    bot.register_next_step_handler(call.message, translate_text, target_lang)
 
 def translate_text(message, target_lang):
+    if message.text == '/help':
+        global selected_action
+        selected_action = ""
+        markup = telebot.types.InlineKeyboardMarkup()
+        translate = telebot.types.InlineKeyboardButton(translate_button_message, callback_data='translate')
+        searchwiki = telebot.types.InlineKeyboardButton(searchwiki_button_message, callback_data="searchwiki")
+        reviewcheck = telebot.types.InlineKeyboardButton(reviews_button_message, url=telegram_project_reviews)
+        feedback = telebot.types.InlineKeyboardButton(feedback_button_message, url=telegram_project_feedback)
+        markup.row(translate, searchwiki)
+        markup.row(reviewcheck, feedback)
+        bot.send_message(message.chat.id, help_message, reply_markup=markup)
+        return
     text = message.text
     translator = Translator()
     translation = translator.translate(text, dest=target_lang).text
     bot.send_message(message.chat.id, translation)
-    markup = telebot.types.InlineKeyboardMarkup()
-    translate = telebot.types.InlineKeyboardButton(text="Перевести текст", callback_data='translate')
-    searchwiki = telebot.types.InlineKeyboardButton(text="Поиск по Википедии", callback_data="searchwiki")
-    reviewcheck = telebot.types.InlineKeyboardButton(text="Отзывы", url=telegram_project_reviews)
-    feedback = telebot.types.InlineKeyboardButton(text="Обратная связь", url=telegram_project_feedback)
-    markup.row(translate, searchwiki)
-    markup.row(reviewcheck, feedback)
-    bot.send_message(message.chat.id, "Ваш выбор был сброшен автоматически. Чтобы снова выбрать действие, нажмите на кнопку внизу.", reply_markup=markup)
+    bot.send_message(message.chat.id, repeat_enter_text_translate)
+    bot.register_next_step_handler(message, translate_text, target_lang)
 
 @bot.callback_query_handler(func=lambda call: call.data == 'searchwiki')
 def handle_searchwiki_button(call):
-    bot.send_message(call.message.chat.id, "Введите поисковый запрос в Википедии:")
+    bot.send_message(call.message.chat.id, enter_request_wiki)
     bot.register_next_step_handler(call.message, search_wikipedia)
+
 def search_wikipedia(message):
-    term = message.text.lower()
-    summary, image_url = get_wikipedia_summary(term)
-    if summary:
-        bot.send_message(message.chat.id, summary)
-        if image_url:
-            bot.send_photo(message.chat.id, image_url)
+    if message.text == '/help':
+        global selected_action
+        selected_action = ""
+        markup = telebot.types.InlineKeyboardMarkup()
+        translate = telebot.types.InlineKeyboardButton(translate_button_message, callback_data='translate')
+        searchwiki = telebot.types.InlineKeyboardButton(searchwiki_button_message, callback_data="searchwiki")
+        reviewcheck = telebot.types.InlineKeyboardButton(reviews_button_message, url=telegram_project_reviews)
+        feedback = telebot.types.InlineKeyboardButton(feedback_button_message, url=telegram_project_feedback)
+        markup.row(translate, searchwiki)
+        markup.row(reviewcheck, feedback)
+        bot.send_message(message.chat.id, help_message, reply_markup=markup)
+        return
     else:
-        bot.send_message(message.chat.id, "К сожалению, найти информацию по этому термину не удалось. Попробуйте ввести другой термин")
+        term = message.text.lower()
+        summary, image_url = get_wikipedia_summary(term)
+        if summary:
+            bot.send_message(message.chat.id, summary)
+            if image_url:
+                bot.send_photo(message.chat.id, image_url)
+        else:
+            bot.send_message(message.chat.id, error_wiki_message)
+
+        bot.send_message(message.chat.id, repeating_enter_request_wiki)
+        bot.register_next_step_handler(message, search_wikipedia)
+
     user_id = message.chat.id
     if user_id not in poll_shown:
         search_count = searches_count.get(user_id, 0)
@@ -118,45 +186,40 @@ def search_wikipedia(message):
 
         if search_count == 5:
             markup = telebot.types.InlineKeyboardMarkup()
-            reviewcheck = telebot.types.InlineKeyboardButton(text="Оставить отзыв", url=telegram_project_reviews)
-            feedback = telebot.types.InlineKeyboardButton(text="Обратная связь", url=telegram_project_feedback)
+            reviewcheck = telebot.types.InlineKeyboardButton(reviews_button_message, url=telegram_project_reviews)
+            feedback = telebot.types.InlineKeyboardButton(feedback_button_message, url=telegram_project_feedback)
             markup.row(reviewcheck, feedback)
-            bot.send_message(user_id, "Мы очень рады, что вы нашли необходимую информацию! Мы заметили, что вы часто пользуетесь нашим ботом, и нам это очень приятно. Если вам не сложно, пожалуйста, оставьте свой отзыв о нашем боте. Мы будем благодарны за любой отзыв, который вы сможете предоставить. С вашей помощью мы сможем улучшить нашего бота и сделать его еще более полезным для вас и других пользователей. Спасибо!", reply_markup=markup)
+            bot.send_message(user_id, reminder_message, reply_markup=markup)
             poll_shown.add(user_id)
             searches_count[user_id] = 0
-    markup = telebot.types.InlineKeyboardMarkup()
-    translate = telebot.types.InlineKeyboardButton(text="Перевести текст", callback_data='translate')
-    searchwiki = telebot.types.InlineKeyboardButton(text="Поиск по Википедии", callback_data="searchwiki")
-    reviewcheck = telebot.types.InlineKeyboardButton(text="Отзывы", url=telegram_project_reviews)
-    feedback = telebot.types.InlineKeyboardButton(text="Обратная связь", url=telegram_project_feedback)
-    markup.row(translate, searchwiki)
-    markup.row(reviewcheck, feedback)
-    bot.send_message(message.chat.id, "Ваш выбор был сброшен автоматически. Чтобы снова выбрать действие, нажмите на кнопку внизу.", reply_markup=markup)
 
 @bot.message_handler(commands=['help'])
 def handle_start(message):
+    global selected_action
+    selected_action = ""
     markup = telebot.types.InlineKeyboardMarkup()
-    translate = telebot.types.InlineKeyboardButton(text="Перевести текст", callback_data='translate')
-    searchwiki = telebot.types.InlineKeyboardButton(text="Поиск по Википедии", callback_data="searchwiki")
-    reviewcheck = telebot.types.InlineKeyboardButton(text="Отзывы", url=telegram_project_reviews)
-    feedback = telebot.types.InlineKeyboardButton(text="Обратная связь", url=telegram_project_feedback)
+    translate = telebot.types.InlineKeyboardButton(translate_button_message, callback_data='translate')
+    searchwiki = telebot.types.InlineKeyboardButton(searchwiki_button_message, callback_data="searchwiki")
+    reviewcheck = telebot.types.InlineKeyboardButton(reviews_button_message, url=telegram_project_reviews)
+    feedback = telebot.types.InlineKeyboardButton(feedback_button_message, url=telegram_project_feedback)
     markup.row(translate, searchwiki)
     markup.row(reviewcheck, feedback)
-    bot.send_message(message.chat.id, "Ваш выбор был сброшен автоматически. Чтобы снова выбрать действие, нажмите на кнопку внизу.", reply_markup=markup)
-
+    bot.send_message(message.chat.id, help_message, reply_markup=markup)
+    return
 
 @bot.message_handler(commands=['start'])
 def handle_start(message):
+    global selected_action
     markup = telebot.types.InlineKeyboardMarkup()
-    translate = telebot.types.InlineKeyboardButton(text="Перевести текст", callback_data='translate')
-    searchwiki = telebot.types.InlineKeyboardButton(text="Поиск по Википедии", callback_data="searchwiki")
-    reviewcheck = telebot.types.InlineKeyboardButton(text="Отзывы", url=telegram_project_reviews)
-    feedback = telebot.types.InlineKeyboardButton(text="Обратная связь", url=telegram_project_feedback)
+    translate = telebot.types.InlineKeyboardButton(translate_button_message, callback_data='translate')
+    searchwiki = telebot.types.InlineKeyboardButton(searchwiki_button_message, callback_data="searchwiki")
+    reviewcheck = telebot.types.InlineKeyboardButton(reviews_button_message, url=telegram_project_reviews)
+    feedback = telebot.types.InlineKeyboardButton(feedback_button_message, url=telegram_project_feedback)
     markup.row(translate, searchwiki)
     markup.row(reviewcheck, feedback)
-    bot.send_message(message.chat.id, f"Привет! Я {name_project} - ваш надежный помощник в поиске информации из Википедии и переводе текста! Если вы хотите перевести текст или найти определение слова, просто нажмите на кнопку внизу.", reply_markup=markup)
+    bot.send_message(message.chat.id, welcome_project, reply_markup=markup)
 
 @bot.message_handler(func=lambda message: True)
 def handle_text(message):
-    bot.send_message(message.chat.id, "Извините, я не понял вашего сообщения. Возможно, вы забыли выбрать действие, чтобы выбрать действие, нажмите на /help.")
+    bot.send_message(message.chat.id, error_message)
 bot.polling()
