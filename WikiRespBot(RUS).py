@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 import re
 from googletrans import Translator
 
-TOKEN = '6762231009:AAG-1SxzRqJ9J-zqNT2uoJzQINBH5EKjv14' # НАПИШИТЕ ЗДЕСЬ СВОЮ КЛЮЧ ОТ TELEGRAM-БОТА
+TOKEN = 'YOUR_API_KEY_TELEGRAM_BOT' # НАПИШИТЕ ЗДЕСЬ СВОЮ КЛЮЧ ОТ TELEGRAM-БОТА
 bot = telebot.TeleBot(TOKEN)
 
 selected_action = ""
