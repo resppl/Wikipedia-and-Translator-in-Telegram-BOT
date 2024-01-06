@@ -3,6 +3,7 @@
 In order for the script to work, download the libraries to your computer by running the following commands on the command line:
 #
 pip install pyTelegramBotApi
++
 pip install requests
 pip install wikipedia-api
 pip install beautifulsoup4
