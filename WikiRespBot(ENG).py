@@ -1,4 +1,4 @@
-##          Эмир Абдуллаев && Resp                                   ##
+##          Emir Abdullaev && Resp                                   ##
 ##          Translator and Wikipedia in the TELEGRAM bot             ##
 ##          IF YOU ARE TRYING TO PUBLISH, SPECIFY THE AUTHOR!        ##
 import telebot
@@ -35,10 +35,10 @@ enter_request_wiki = "Enter a search query in Wikipedia:" # TEXT
 repeating_enter_request_wiki = "Enter the following Wikipedia search query (if you want to change the selection, enter /help):" # CONTINUATION, IF THE USER DECIDES TO CHOOSE A NEW ACTION, THEN WRITES /HELP
 reminder_message = "We are very glad that you have found the necessary information! We noticed that you often use our bot, and we are very pleased. If it's not difficult for you, please leave your feedback about our bot. We will be grateful for any feedback you can provide. With your help, we can improve our bot and make it even more useful for you and other users. Thanks!" # AN ALERT TO RATE THE BOT, AFTER SEVERAL SEARCHES FOR TERMS
 ## REVIEWS
-telegram_project_reviews = "t.me/wikirespbotreviews" # LINK TO REVIEWS
+telegram_project_reviews = "Insert_your_link" # LINK TO REVIEWS
 reviews_button_message = "Reviews" # BUTTON
 ## FEEDBACK
-telegram_project_feedback = "t.me/resppl" # LINK TO THE FEEDBACK
+telegram_project_feedback = "Insert_your_link" # LINK TO THE FEEDBACK
 feedback_button_message = "Feedback" # BUTTON
 
 searches_count = {}
