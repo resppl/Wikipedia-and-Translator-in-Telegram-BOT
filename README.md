@@ -1,7 +1,8 @@
 # Wikipedia and Translator in Telegram BOT
 
-Теперь скрипт будет выводить предупреждение, если пользователь выберет сначала первое действие, а затем второе, так как доступно только одно действие. Если пользователь выберет второе действие и не сбросит его командой /help, то будет выведена ошибка о том, что выбор уже сделан, и чтобы его сбросить, необходимо воспользоваться командой /help.
-Теперь после каждого поиска или перевода текста действие не нужно вводить снова, оно будет повторяться, пока вы сами не остановите его с помощью команды /help.
+Now the script will display a warning if the user selects the first action first and then the second, since only one action is available. If the user selects the second action and does not reset it with the /help command, an error will be displayed stating that the choice has already been made, and in order to reset it, you must use the /help command.
+#
+Now, after each search or translation of the text, the action does not need to be entered again, it will be repeated until you stop it yourself using the /help command.
 
 In order for the script to work, download the libraries to your computer by running the following commands on the command line:
 #
@@ -14,10 +15,9 @@ pip install wikipedia-api
 pip install beautifulsoup4
 #
 pip install googletrans==3.1.0a0
-
-Now the script will display a warning if the user selects the first action first and then the second, since only one action is available. If the user selects the second action and does not reset it with the /help command, an error will be displayed stating that the choice has already been made, and in order to reset it, you must use the /help command.
-
-Now, after each search or translation of the text, the action does not need to be entered again, it will be repeated until you stop it yourself using the /help command.
+Теперь скрипт будет выводить предупреждение, если пользователь выберет сначала первое действие, а затем второе, так как доступно только одно действие. Если пользователь выберет второе действие и не сбросит его командой /help, то будет выведена ошибка о том, что выбор уже сделан, и чтобы его сбросить, необходимо воспользоваться командой /help.
+#
+Теперь после каждого поиска или перевода текста действие не нужно вводить снова, оно будет повторяться, пока вы сами не остановите его с помощью команды /help.
 
 #
 THIS BOT IS DESIGNED TO QUICKLY FIND A TERM ON WIKIPEDIA, AS WELL AS QUICKLY TRANSLATE IT.
