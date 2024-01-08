@@ -1,4 +1,4 @@
-### Wikipedia and Translator in Telegram BOT
+# Wikipedia and Translator in Telegram BOT
 
 ### Updates:
 
