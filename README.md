@@ -1,5 +1,8 @@
 # Wikipedia and Translator in Telegram BOT
 
+You can test the bot in the telegram by following the link: t.me/wikirespbot
+Вы можете протестировать бота в telegram, перейдя по ссылке: t.me/wikirespbot
+
 ### Updates:
 
 Now the script will display a warning if the user selects the first action first and then the second, since only one action is available. If the user selects the second action and does not reset it with the /help command, an error will be displayed stating that the choice has already been made, and in order to reset it, you must use the /help command.
