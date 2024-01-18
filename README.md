@@ -1,7 +1,7 @@
 # Wikipedia and Translator in Telegram BOT
 
-## You can test the bot in the telegram by following the link: t.me/wikirespbot
-## Вы можете протестировать бота в telegram, перейдя по ссылке: t.me/wikirespbot
+#### You can test the bot in the telegram by following the link: t.me/wikirespbot
+#### Вы можете протестировать бота в telegram, перейдя по ссылке: t.me/wikirespbot
 
 ### Updates:
 
