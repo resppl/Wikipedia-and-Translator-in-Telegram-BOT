@@ -16,6 +16,7 @@ Now, after each search or translation of the text, the action does not need to b
     pip install wikipedia-api
     pip install beautifulsoup4
     pip install googletrans==3.1.0a0
+    pip install telebot
 
 THIS BOT IS DESIGNED TO QUICKLY FIND A TERM ON WIKIPEDIA, AS WELL AS QUICKLY TRANSLATE IT.
 
@@ -35,6 +36,7 @@ NOTHING HAS BEEN STOLEN ANYWHERE, IF YOU'RE TRYIN' TO ATTACH THIS SCRIPT TO YOUR
     pip install wikipedia-api
     pip install beautifulsoup4
     pip install googletrans==3.1.0a0
+    pip install telebot
 
 ЭТОТ БОТ ПРЕДНАЗНАЧЕН ДЛЯ БЫСТРОГО ПОИСКА ТЕРМИНА В ВИКИПЕДИИ, А ТАКЖЕ ДЛЯ БЫСТРОГО ЕГО ПЕРЕВОДА.
 
